@@ -67,3 +67,36 @@ export const signup = async (req, res) => {
 		res.status(500).json({ error: "Internal Server Error" });
     }
 }
+
+export const login = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // Find user by email
+        const user = await User.findOne({ email });
+        console.log("login: ", user);
+        if (!user) {
+            return res.status(400).json({ error: "User not found" });
+        }
+        // Compare passwords
+        const isPasswordCorrect = await bcrypt.compare(password, user.password);
+        if(!isPasswordCorrect){
+            return res.status(400).json({ error: "Invalid password" });
+        }
+        // Generate JWT token and set it as an HTTP-only cookie
+        generateTokenAndSetCookie(user._id, res);
+
+        // Respond with user info (excluding password)
+        res.status(200).json({
+            user: {
+                id: user._id,
+                username: user.username,
+                mobileNo: user.mobileNo,
+                email: user.email,
+            },
+        });
+    } catch (error) {
+        console.log("Error in login controller", error.message);
+		res.status(500).json({ error: "Internal Server Error" });
+    }
+}
