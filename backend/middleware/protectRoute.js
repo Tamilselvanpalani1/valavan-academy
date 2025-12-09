@@ -8,7 +8,7 @@ import jwt from 'jsonwebtoken';
 // If invalid or missing, it responds with 401 Unauthorized.
 // ------------------------------------------------------------------
 
-const protectRoute = async (req, res, next) => {
+export const protectRoute = async (req, res, next) => {
     try {
         const token = req.cookies.jwt;
         if (!token) {
