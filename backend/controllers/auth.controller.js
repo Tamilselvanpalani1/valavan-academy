@@ -51,7 +51,7 @@ export const signup = async (req, res) => {
             //RRespond with user info (excluding password)
             res.status(201).json({
                 user: {
-                    id: newUser._id,
+                    _id: newUser._id,
                     username: newUser.username,
                     mobileNo: newUser.mobileNo,
                     email: newUser.email,
@@ -89,7 +89,7 @@ export const login = async (req, res) => {
         // Respond with user info (excluding password)
         res.status(200).json({
             user: {
-                id: user._id,
+                _id: user._id,
                 username: user.username,
                 mobileNo: user.mobileNo,
                 email: user.email,
@@ -98,5 +98,30 @@ export const login = async (req, res) => {
     } catch (error) {
         console.log("Error in login controller", error.message);
 		res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
+export const logout = async (req, res) => {
+    try {
+        // Clear the JWT cookie by setting it to an empty value and expiring it immediately
+        res.cookie("jwt", "", {maxAge: 0});
+        res.status(200).json({ message: "Logged out successfully" });
+    }
+    catch (error) {
+        console.log("Error in logout controller", error.message);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
+export const getMe = async (req, res) => {
+    try {
+        // Use the user ID from protectRoute middleware (req.user._id)
+        const user = await User.findById({ _id: req.user._id }).select("-password");
+
+    	// Respond with user profile
+        res.status(200).json({ user });
+    } catch (error) {
+        console.log("Error in getMe controller", error.message);
+        res.status(500).json({ error: "Internal Server Error" });
     }
 }
