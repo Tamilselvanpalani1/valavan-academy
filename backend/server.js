@@ -5,8 +5,17 @@ dotenv.config();
 import connectDB from './db/connectdb.js';
 import cookieParser from 'cookie-parser';
 import authRoute from './routes/auth.route.js';
+import courseRoute from './routes/course.route.js';
+import { v2 as cloudinary } from 'cloudinary'; //importing cloudinary
 
 const app = express();
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET_KEY
+})
 
 //CORS middleware
 app.use(cors({
@@ -27,6 +36,7 @@ app.use(cookieParser())
 app.use(express.urlencoded({ extended: true })); // to handle form data
 
 app.use('/api/auth', authRoute);
+app.use('/api/courses', courseRoute);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

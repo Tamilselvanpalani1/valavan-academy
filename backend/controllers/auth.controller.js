@@ -6,7 +6,7 @@ import { generateTokenAndSetCookie } from '../Utils/generateToken.js';
 //Signup controller
 export const signup = async (req, res) => {
     try{
-        const { username, mobileNo, email, password } = req.body;
+        const { username, mobileNo, email, password, role } = req.body;
 
         //email format
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -29,6 +29,12 @@ export const signup = async (req, res) => {
             return res.status(400).json({ error: "Password must be at least 6 characters long" });
         }
 
+        //role
+        const userRole = role || "user"; // default role is 'user'
+        if(!["user", "admin"].includes(userRole)){
+            return res.status(400).json({ error: "Invalid role specified" });
+        }
+
         // Hash password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
@@ -39,6 +45,7 @@ export const signup = async (req, res) => {
             mobileNo,
             email,
             password: hashedPassword,
+            role
         });
 
         if(newUser){
@@ -55,6 +62,7 @@ export const signup = async (req, res) => {
                     username: newUser.username,
                     mobileNo: newUser.mobileNo,
                     email: newUser.email,
+                    role: newUser.role,
                 },
             });
         }
@@ -93,6 +101,7 @@ export const login = async (req, res) => {
                 username: user.username,
                 mobileNo: user.mobileNo,
                 email: user.email,
+                role: user.role,
             },
         });
     } catch (error) {
