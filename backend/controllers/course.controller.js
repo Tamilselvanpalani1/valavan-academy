@@ -50,3 +50,25 @@ export const createCourse = async (req, res) => {
         return res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
+export const deleteCourse = async (req, res) => {
+    try {
+        const courseId = req.params.id;
+
+        const course = await Course.findById({ _id: courseId});
+        if (!course) {
+            return res.status(404).json({ error: "Course not found" });
+        }
+
+        // if(post.img) {
+        //     const imgId = post.img.split('/').pop().split('.')[0];
+        //     await cloudinary.uploader.destroy(imgId); // Deleting post image from Cloudinary
+        // }
+
+        await Course.findByIdAndDelete({ _id: courseId }); // Delete the post from the database
+        res.status(200).json({ message: "Course deleted successfully" });
+    } catch (error) {
+        console.log("Error in delete course Controller", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}
