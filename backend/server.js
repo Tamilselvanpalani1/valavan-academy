@@ -43,3 +43,4 @@ app.listen(PORT, () => {
   connectDB();
   console.log("Mongo URL:", process.env.MONGO_URL);
 });
+
