@@ -6,6 +6,7 @@ import connectDB from './db/connectdb.js';
 import cookieParser from 'cookie-parser';
 import authRoute from './routes/auth.route.js';
 import courseRoute from './routes/course.route.js';
+import studentWorksRoute from './routes/studentWorks.route.js';
 import { v2 as cloudinary } from 'cloudinary'; //importing cloudinary
 
 const app = express();
@@ -37,6 +38,7 @@ app.use(express.urlencoded({ extended: true })); // to handle form data
 
 app.use('/api/auth', authRoute);
 app.use('/api/courses', courseRoute);
+app.use('/api/student-works', studentWorksRoute);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
