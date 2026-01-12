@@ -15,7 +15,7 @@ export const createOrUpdateStudentWorks = async (req, res) => {
             return res.status(400).json({ error: "Tabs must be a non-empty array" });
         }
 
-        // Find the user's existing StudentWorks document, or create new -> Refering to DB
+        // If no data exists, create a new one -> Refering to DB
         let studentWorksDoc = await StudentWorks.findOne({ user: userId });
         if (!studentWorksDoc) {
             studentWorksDoc = new StudentWorks({ user: userId, tabs: [] });
