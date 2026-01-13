@@ -1,7 +1,7 @@
 import User from "../models/user.model.js";
 import StudentWorks from "../models/studentWorks.model.js";
 import cloudinary from 'cloudinary';
-export const createOrUpdateStudentWorks = async (req, res) => {
+export const createStudentWorks = async (req, res) => {
     try {
         const userId = req.user._id.toString();
 
@@ -111,3 +111,68 @@ export const deleteStudentWorks = async (req, res) => {
     }
 };
 
+export const updateStudentWorks = async (req, res) => {
+  try {
+    const userId = req.user._id.toString();
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(403).json({ error: "Unauthorized user" });
+    }
+
+    const { image, title, description } = req.body;
+    const idToUpdateStudentWorks = req.params.id;
+
+    if (!idToUpdateStudentWorks) {
+      return res.status(400).json({ error: "ID to update student works is missing" });
+    }
+
+    // Get document
+    const studentWorksDoc = await StudentWorks.findOne();
+    if (!studentWorksDoc) {
+      return res.status(404).json({ error: "Student works not found" });
+    }
+
+    let workToUpdate = null;
+
+    // Find the nested work
+    for (const tab of studentWorksDoc.tabs) {
+      workToUpdate = tab.studentWorksDetails.id(idToUpdateStudentWorks);
+      if (workToUpdate) break;
+    }
+
+    if (!workToUpdate) {
+      return res.status(404).json({ error: "Student work not found" });
+    }
+
+    // Update fields
+    workToUpdate.title = title ?? workToUpdate.title;
+    workToUpdate.description = description ?? workToUpdate.description;
+
+    // Image upload (optional)
+    if (image) {
+      // delete old image if needed
+      if (workToUpdate.image) {
+        const publicId = workToUpdate.image.split("/").pop().split(".")[0];
+        await cloudinary.uploader.destroy(publicId);
+      }
+
+      const uploadResponse = await cloudinary.uploader.upload(image, {
+        folder: "student-works",
+      });
+
+      workToUpdate.image = uploadResponse.secure_url;
+    }
+
+    // Save parent document
+    await studentWorksDoc.save();
+
+    return res.status(200).json({
+      message: "Student work updated successfully",
+      data: workToUpdate,
+    });
+
+  } catch (error) {
+    console.error("Error in updateStudentWorks:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
